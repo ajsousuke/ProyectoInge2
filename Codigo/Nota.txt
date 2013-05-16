@@ -1,0 +1,2 @@
+Cameo Data Modeler debe estar instalado y actualizado para
+abrir el archivo 'A73895_A94125_Edecisiones.mdzip' correctamente.
