@@ -48,7 +48,7 @@ public class Menu extends HorizontalLayout{
 		// crear botones
 		editarPlebiscito = new Button("Editar Plebiscito");
 		editarTendencia = new Button("Editar Tendencia");
-		registrarPadron = new Button("Registrar Padron");
+		registrarPadron = new Button("Editar Padron");
 		votar = new Button("Votar");
 		
 		// meterles el listener
