@@ -41,7 +41,9 @@ public class Votar extends SubControlador{
 		InfoPlebiscito info = getEdecisiones().getPlebiscito().GetInfoPlebiscito();
 		Date[] periodoVotacion = info.GetPeriodoVotacion();
 		Date fechaActual = new Date();
-		boolean haVotado = getEdecisiones().getControladorBD().RecuperarVoto(301750586, getEdecisiones().getPlebiscito());
+		boolean haVotado = getEdecisiones().getControladorBD().RecuperarVoto(
+													getEdecisiones().getUsuario().getDatosCiudadano().GetCedula(), 
+													getEdecisiones().getPlebiscito());
 		
 		//agregar lo de java digital sign
 		if(haVotado){
@@ -63,7 +65,8 @@ public class Votar extends SubControlador{
 	}
 	
 	public void Votar(int Id_Tendencia){
-		Voto voto = new Voto(Id_Tendencia, 301750586);
+		Voto voto = new Voto(Id_Tendencia, 
+				getEdecisiones().getUsuario().getDatosCiudadano().GetCedula());
 		ventana = new Window("Voto");
 		VerticalLayout vl = new VerticalLayout();
 		vl.addComponent(new com.vaadin.ui.Label("Se ha realizado el voto"));
@@ -75,7 +78,7 @@ public class Votar extends SubControlador{
 			public void windowClose(CloseEvent e) {
 				// TODO Auto-generated method stub
 				getEdecisiones().removeWindow(ventana);
-				getEdecisiones().getEditarTendencia().ir_a_inicio();
+				getEdecisiones().getConsultarPlebiscito().verDescripcion_Actual();
 			}
 		});
 		

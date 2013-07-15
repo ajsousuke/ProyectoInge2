@@ -37,6 +37,8 @@
 		
 		<!-- Conector para mysql -->
 		<dependency org="mysql" name="mysql-connector-java" rev="5.1.17" />
+		
+		<dependency org="com.vaadin.addon" name="vaadin-charts" rev="1.1.1" />
 	</dependencies>
 </ivy-module>
     

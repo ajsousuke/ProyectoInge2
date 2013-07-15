@@ -2,6 +2,8 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
+DROP DATABASE IF EXISTS `Edecisiones_BD`;
+
 CREATE SCHEMA IF NOT EXISTS `Edecisiones_BD` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci ;
 USE `Edecisiones_BD` ;
 
@@ -35,7 +37,14 @@ CREATE  TABLE IF NOT EXISTS `Edecisiones_BD`.`Plebiscito` (
   `Discusion_Inicio` DATE NULL ,
   `Discusion_Final` DATE NULL ,
   `Resultados` DATE NULL ,
-  PRIMARY KEY (`Id_Plebiscito`) )
+  `Usuario_Creador` INT NOT NULL ,
+  PRIMARY KEY (`Id_Plebiscito`) ,
+  UNIQUE(`Nombre_Plebiscito`) ,
+  CONSTRAINT `fk_Plebiscito_Usuario1`
+    FOREIGN KEY (`Usuario_Creador` )
+    REFERENCES `Edecisiones_BD`.`Usuario` (`Id_Usuario` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -45,7 +54,7 @@ ENGINE = InnoDB;
 CREATE  TABLE IF NOT EXISTS `Edecisiones_BD`.`Tendencia` (
   `Id_Tendencia` INT NOT NULL AUTO_INCREMENT ,
   `Nombre_Tendencia` VARCHAR(45) NOT NULL ,
-  `Fotografia` BLOB NULL ,
+  `Fotografia` MEDIUMBLOB NULL ,
   `Nombre_Fotografia` VARCHAR(255) NULL ,
   `Descripcion` TEXT NOT NULL ,
   `Info_contacto` TEXT NOT NULL ,
@@ -71,6 +80,7 @@ CREATE  TABLE IF NOT EXISTS `Edecisiones_BD`.`Usuario` (
   `Fotografia` BLOB NULL ,
   `Persona_Cedula` INT NOT NULL ,
   PRIMARY KEY (`Id_Usuario`, `Persona_Cedula`) ,
+  UNIQUE (`Email`) ,
   INDEX `fk_Usuario_Persona1_idx` (`Persona_Cedula` ASC) ,
   CONSTRAINT `fk_Usuario_Persona1`
     FOREIGN KEY (`Persona_Cedula` )
@@ -85,16 +95,21 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `Edecisiones_BD`.`RespuestaForo` (
   `Id_RespuestaForo` INT NOT NULL AUTO_INCREMENT ,
-  `Respuesta` BLOB NULL ,
+  `Respuesta` TEXT NULL ,
   `Numero` INT NULL ,
-  `Fecha` DATE NULL ,
-  `Hora` TIME NULL ,
+  `Fecha` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
   `Plebiscito_Id_Plebiscito` INT NOT NULL ,
+  `Usuario_Id_Usuario` INT NOT NULL ,
   PRIMARY KEY (`Id_RespuestaForo`, `Plebiscito_Id_Plebiscito`) ,
   INDEX `fk_RespuestaForo_Plebiscito1_idx` (`Plebiscito_Id_Plebiscito` ASC) ,
   CONSTRAINT `fk_RespuestaForo_Plebiscito1`
     FOREIGN KEY (`Plebiscito_Id_Plebiscito` )
     REFERENCES `Edecisiones_BD`.`Plebiscito` (`Id_Plebiscito` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_RespuestaForo_Usuario1`
+    FOREIGN KEY (`Usuario_Id_Usuario` )
+    REFERENCES `Edecisiones_BD`.`Usuario` (`Id_Usuario` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
@@ -109,11 +124,6 @@ CREATE  TABLE IF NOT EXISTS `Edecisiones_BD`.`Padron` (
   PRIMARY KEY (`Persona_Cedula`, `Plebiscito_Id_Plebiscito`) ,
   INDEX `fk_Persona_has_Plebiscito_Plebiscito1_idx` (`Plebiscito_Id_Plebiscito` ASC) ,
   INDEX `fk_Persona_has_Plebiscito_Persona_idx` (`Persona_Cedula` ASC) ,
-  CONSTRAINT `fk_Persona_has_Plebiscito_Persona`
-    FOREIGN KEY (`Persona_Cedula` )
-    REFERENCES `Edecisiones_BD`.`Persona` (`Cedula` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT `fk_Persona_has_Plebiscito_Plebiscito1`
     FOREIGN KEY (`Plebiscito_Id_Plebiscito` )
     REFERENCES `Edecisiones_BD`.`Plebiscito` (`Id_Plebiscito` )

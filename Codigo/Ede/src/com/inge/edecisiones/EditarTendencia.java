@@ -50,7 +50,8 @@ public class EditarTendencia extends SubControlador  implements Receiver, Succee
 	@Override
 	public void ir_a_inicio() {
 		// preparacion previa
-		List<String> lista_plebiscitos = controlador.getControladorBD().RecuperarListaPlebiscitos();
+		List<String> lista_plebiscitos = controlador.getControladorBD().RecuperarListaPlebiscitos(
+				controlador.getUsuario().GetID() );
 		nuevaTendencia.llenarListaPlebiscitos(lista_plebiscitos);
 		nuevaTendencia.initListaTendencias();
 		
@@ -159,12 +160,13 @@ public class EditarTendencia extends SubControlador  implements Receiver, Succee
 				break;
 			case NOMBRE_TENDENCIA_REPETIDO:
 				esValido = false;
+				break;
 			default:
 				esValido = true;
 				break;
 		}
 		
-		return true;
+		return esValido;
 	}	
 	
 	/**

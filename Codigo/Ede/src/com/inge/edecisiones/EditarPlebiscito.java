@@ -44,7 +44,9 @@ public class EditarPlebiscito extends SubControlador {
 	 */
 	public void ir_a_inicio() {
 		// preparacion previa
-		List<String> lista_plebiscitos = controlador.getControladorBD().RecuperarListaPlebiscitos();
+		List<String> lista_plebiscitos = controlador.getControladorBD().RecuperarListaPlebiscitos(
+				controlador.getUsuario().GetID() );
+		
 		nuevoPlebiscito.llenarListaPlebiscitos(lista_plebiscitos);
 		
 		// por ahora volver al inicio del caso de uso
@@ -59,6 +61,8 @@ public class EditarPlebiscito extends SubControlador {
 		editar = false;
 		
 		plebiscito = new Plebiscito();
+		plebiscito.setIdUsuarioCreador(  controlador.getUsuario().GetID()  );
+		
 		editarPlebiscito.setInfoPlebiscito(plebiscito.GetInfoPlebiscito());
 		editarPlebiscito.limpiar();
 		
@@ -111,7 +115,8 @@ public class EditarPlebiscito extends SubControlador {
 		controlador.getControladorBD().EliminarPlebiscito(nombrep);
 		
 		//se actualiza la ventana:
-		List<String> lista_plebiscitos = controlador.getControladorBD().RecuperarListaPlebiscitos();
+		List<String> lista_plebiscitos = controlador.getControladorBD().RecuperarListaPlebiscitos(
+				controlador.getUsuario().GetID() );
 		nuevoPlebiscito.llenarListaPlebiscitos(lista_plebiscitos);
 	}	
 	
@@ -155,7 +160,8 @@ public class EditarPlebiscito extends SubControlador {
 		// con mismo nombre, esto solo si se esta creando un nuevo plebiscito
 		if(editar == false) {
 			List<String> lista_plebiscitos =
-					controlador.getControladorBD().RecuperarListaPlebiscitos();
+					controlador.getControladorBD().RecuperarListaPlebiscitos(
+							controlador.getUsuario().GetID());
 			error =
 					lista_plebiscitos.contains(plebiscito.GetInfoPlebiscito().GetNombre())?ErrorDatos.NOMBRE_REPETIDO: ErrorDatos.OK;
 		}

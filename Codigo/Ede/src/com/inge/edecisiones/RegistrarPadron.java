@@ -1,6 +1,7 @@
 package com.inge.edecisiones;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.ibm.icu.impl.CalendarAstronomer.Horizon;
 import com.vaadin.ui.Button;
@@ -18,12 +19,17 @@ public class RegistrarPadron extends SubControlador{
 	//Nombres de la ventana
 	protected static final String REGISTRAR_PADRON = "RegistrarPadron";
 	protected static final String IMPORTAR_PADRON = "ImportarPadron";
+	protected static final String CONSULTAR_PADRON = "ConsultarPadron";
 	
 	//Ventanas
 	VRegistrarPadron regPadron;
 	VImportarPadron impPadron;
+	VConsultarPadron conPadron;
 	Window wEliminar;
 	Editar wEditar;
+	
+	//Variables locales
+	Plebiscito plebiscito;
 	boolean retorno;
 	
 	public RegistrarPadron(Edecisiones e) {
@@ -35,8 +41,10 @@ public class RegistrarPadron extends SubControlador{
 	public void initViews() {
 		regPadron = new VRegistrarPadron(this);
 		impPadron = new VImportarPadron(this);
+		conPadron = new VConsultarPadron(this);
 		controlador.getNavigator().addView(REGISTRAR_PADRON, regPadron);
 		controlador.getNavigator().addView(IMPORTAR_PADRON, impPadron);
+		controlador.getNavigator().addView(CONSULTAR_PADRON, conPadron);
 	}
 	
 	/* 
@@ -46,27 +54,41 @@ public class RegistrarPadron extends SubControlador{
 	@Override
 	public void ir_a_inicio() {
 		// preparacion previa
-		regPadron.limpiarPadron();
+		/*regPadron.limpiarPadron();
 		
 		Padron padron = getEdecisiones().getControladorBD().recuperarPadron(getEdecisiones().getPlebiscito());
-		regPadron.setPadron(padron);
+		regPadron.setPadron(padron);*/
+		
+		//cargar listas de plebiscitos
+		List<String> lista_plebiscitos = controlador.getControladorBD().RecuperarListaPlebiscitos(
+																	controlador.getUsuario().GetID());
+		conPadron.llenarListaPlebiscitos(lista_plebiscitos);
 		
 		// cargar ventana
+		this.controlador.getNavigator().navigateTo(CONSULTAR_PADRON);
+	}
+	
+	public void setPlebiscito(String nombrePlebiscito){
+		plebiscito = this.controlador.getControladorBD().RecuperarPlebiscito(nombrePlebiscito);
+	}
+	
+	public void cargarPadron(){
+		regPadron.limpiarPadron();
+		Padron padron = getEdecisiones().getControladorBD().recuperarPadron(plebiscito);
+		regPadron.setPadron(padron);
 		this.controlador.getNavigator().navigateTo(REGISTRAR_PADRON);
 	}
 	
 	public void guardar(Ciudadano c){
-		
-		getEdecisiones().getControladorBD().InsertarCiudadano(c, getEdecisiones().getPlebiscito().GetID());
-		
+		getEdecisiones().getControladorBD().InsertarEnPadron(c, plebiscito.GetID());		
 	}
 	
-	public void guardar(ArrayList<String[]> padron){
+	public void guardar(ArrayList<String> padron){
 		boolean error = false;
-		Padron p = new Padron(getEdecisiones().getPlebiscito().GetID());
-		for(String[] a : padron){
-			if((a.length==4) && (a[0].length()==9)){
-				Ciudadano c = new Ciudadano(a[1], a[2], a[3], Integer.parseInt(a[0]));
+		Padron p = new Padron(plebiscito.GetID());
+		for(String a : padron){
+			if((a.length()==9)&&(a.charAt(0)!='0')){
+				Ciudadano c = new Ciudadano("", "", "", Integer.parseInt(a));
 				p.AddCiudadano(c);
 			}
 			else
@@ -77,7 +99,7 @@ public class RegistrarPadron extends SubControlador{
 			Notification.show("Se encuentra un error en el archivo");
 		else{
 			getEdecisiones().getControladorBD().insertarPadron(p);
-			getEdecisiones().getRegistrarPadron().ir_a_inicio();
+			cargarPadron();
 		}
 	}
 	
@@ -129,10 +151,9 @@ public class RegistrarPadron extends SubControlador{
 	}
 	
 	public void eliminar (ArrayList<Ciudadano> padron){
-		
+		//cambiarlo por eliminar del padron y no de persona
 		for(Ciudadano c : padron)
-			getEdecisiones().getControladorBD().EliminarCiudadano(c);
-		
+			getEdecisiones().getControladorBD().EliminarPadron(c,plebiscito.GetID());	
 	}
 	
 	public void editar(Ciudadano c){
@@ -142,19 +163,22 @@ public class RegistrarPadron extends SubControlador{
 	
 	class Editar extends Window{
 		Ciudadano ca;
+		int Cedula;
 		TextField nombre;
 		TextField apellido1;
 		TextField apellido2;
+		TextField cedula;
 		
 		public Editar(Ciudadano c){
 			super("Editar Ciudadano");
 			
 			this.ca = c;
+			Cedula = ca.GetCedula();
 			String[] datos = ca.GetName().split(" ");
 			System.out.println(ca.GetName());
 			
 			VerticalLayout vl = new VerticalLayout();
-			HorizontalLayout hl1 = new HorizontalLayout();
+			/*HorizontalLayout hl1 = new HorizontalLayout();
 			hl1.addComponent(new Label("Nombre"));
 			nombre = new TextField("", datos[0]);
 			hl1.addComponent(nombre);
@@ -168,7 +192,12 @@ public class RegistrarPadron extends SubControlador{
 			hl3.addComponent(apellido2);
 			vl.addComponent(hl1);
 			vl.addComponent(hl2);
-			vl.addComponent(hl3);
+			vl.addComponent(hl3);*/
+			HorizontalLayout hl1 = new HorizontalLayout();
+			hl1.addComponent(new Label("Cedula"));
+			cedula = new TextField("",Integer.toString(ca.GetCedula()));
+			hl1.addComponent(cedula);
+			vl.addComponent(hl1);
 			HorizontalLayout hl = new HorizontalLayout();
 			Button btn_volver = new Button("Volver");
 			Button btn_editar = new Button("Editar");
@@ -201,10 +230,11 @@ public class RegistrarPadron extends SubControlador{
 				@Override
 				public void buttonClick(ClickEvent event) {
 					// TODO Auto-generated method stub
-					Ciudadano ce = new Ciudadano(nombre.getValue(), apellido1.getValue(), apellido2.getValue(), ca.GetCedula());
-					getEdecisiones().getControladorBD().EditarCiudadano(ce, ca.GetCedula());
+					//Ciudadano ce = new Ciudadano(nombre.getValue(), apellido1.getValue(), apellido2.getValue(), ca.GetCedula());
+					Ciudadano ce = new Ciudadano("", "", "", Integer.parseInt(cedula.getValue()));
+					getEdecisiones().getControladorBD().EditarPadron(ce, ca.GetCedula(), plebiscito.GetID());
 					getEdecisiones().removeWindow(wEditar);
-					getEdecisiones().getRegistrarPadron().ir_a_inicio();
+					cargarPadron();
 				}
 			});
 		}

@@ -10,6 +10,7 @@ public class Plebiscito
 {
 	private int ID;
 	private InfoPlebiscito Informacion;
+	private int idUsuarioCreador;
 	
 //	private java.util.List<Tendencia> Tendencias;
 //	
@@ -27,6 +28,10 @@ public class Plebiscito
 	
 	public void setInfoPlebiscito(InfoPlebiscito info) {
 		Informacion = info;		
+	}
+	
+	public void setIdUsuarioCreador(int id_usr) {
+		this.idUsuarioCreador = id_usr;
 	}
 	
 //	public void AddTendencia( Tendencia t )
@@ -63,6 +68,11 @@ public class Plebiscito
 		// TODO Auto-generated method stub
 		this.ID = id;
 	}
+	
+	public int getIdUsuarioCreador() {
+		return this.idUsuarioCreador;
+	}
+	
 	
 //	public Foro GetForoDiscucion( )
 //	{
